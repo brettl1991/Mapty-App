@@ -39,6 +39,7 @@ if (navigator.geolocation)
       map.on('click', function (mapEvent) {
         //Rendering workout input form
         form.classList.remove('hidden');
+        inputDistance.focus();
         // console.log(mapEvent);
         //destructure objects from mapEvent
         // const { lat, lng } = mapEvent.latlng;

@@ -11,14 +11,18 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
-let map, mapEvent;
-
 //Implementing classes based on architecture-part-1
 class App {
   #map;
   #mapEvent;
   constructor() {
     this._getPosition();
+
+    //When we submitting the form, display marker exactly on the coordinates where we clicked before
+    form.addEventListener('submit', this._newWorkout.bind(this)); //when you working with eventlisteners in a class need to use binding with this all the time
+
+    //When we change the type should change the lable from Candence to Elev Gain
+    inputType.addEventListener('change', this._toggleElevationField);
   }
 
   _getPosition() {
@@ -33,6 +37,7 @@ class App {
         }
       );
   }
+
   _loadMap(position) {
     // console.log(position);
 
@@ -54,52 +59,47 @@ class App {
     //Display a marker on the map wherever we click
     //getting  different coords from where we click
     //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
-    this.#map.on('click', function (mapE) {
-      this.#mapEvent = mapE; //we did this because we dont need this mapEvenet right here in this function, so copiing to a global variable so we can have access to it later
-      //Rendering workout input form
-      form.classList.remove('hidden');
-      inputDistance.focus();
-    });
+    this.#map.on('click', this._showForm.bind(this));
   }
 
-  _showForm() {}
-  _toggleElevationField() {}
-  _newWorkout() {}
+  _showForm(mapE) {
+    this.#mapEvent = mapE; //we did this because we dont need this mapEvenet right here in this function, so copiing to a global variable so we can have access to it later
+    //Rendering workout input form
+    form.classList.remove('hidden');
+    inputDistance.focus();
+  }
+
+  _toggleElevationField() {
+    //because this func did not use this keyword we do not need to bind up there
+    inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+    inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+  }
+
+  _newWorkout(e) {
+    e.preventDefault();
+    //Clear input fields
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+
+    //destructure objects from mapEvent
+    const { lat, lng } = this.#mapEvent.latlng;
+    L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup',
+        })
+      )
+      .setPopupContent('Workout')
+      .openPopup();
+  }
 }
 
 const app = new App();
-
-//When we submitting the form, display marker exactly on the coordinates where we clicked before
-form.addEventListener('submit', function (e) {
-  e.preventDefault();
-
-  //Clear input fields
-  inputDistance.value =
-    inputDuration.value =
-    inputCadence.value =
-    inputElevation.value =
-      '';
-
-  console.log(mapEvent);
-  //destructure objects from mapEvent
-  const { lat, lng } = mapEvent.latlng;
-  L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
-    .addTo(map)
-    .bindPopup(
-      L.popup({
-        maxWidth: 250,
-        minWidth: 100,
-        autoClose: false,
-        closeOnClick: false,
-        className: 'running-popup',
-      })
-    )
-    .setPopupContent('Workout')
-    .openPopup();
-});
-
-//When we change the type should change the lable from Candence to Elev Gain
-inputType.addEventListener('change', function () {
-  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
-  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
-});

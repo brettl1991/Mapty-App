@@ -33,31 +33,32 @@ if (navigator.geolocation)
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
+      //Display a marker on the map wherever we click
       //getting  different coords from where we click
       //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
       map.on('click', function (mapEvent) {
-        console.log(mapEvent);
+        //Rendering workout input form
+        form.classList.remove('hidden');
+        // console.log(mapEvent);
         //destructure objects from mapEvent
-        const { lat, lng } = mapEvent.latlng;
+        // const { lat, lng } = mapEvent.latlng;
 
-        L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
-          .addTo(map)
-          .bindPopup(
-            L.popup({
-              maxWidth: 250,
-              minWidth: 100,
-              autoClose: false,
-              closeOnClick: false,
-              className: 'running-popup',
-            })
-          )
-          .setPopupContent('Workout')
-          .openPopup();
+        // L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
+        //   .addTo(map)
+        //   .bindPopup(
+        //     L.popup({
+        //       maxWidth: 250,
+        //       minWidth: 100,
+        //       autoClose: false,
+        //       closeOnClick: false,
+        //       className: 'running-popup',
+        //     })
+        //   )
+        //   .setPopupContent('Workout')
+        //   .openPopup();
       });
     },
     function () {
       alert('Could not get your position');
     }
   );
-
-//Display a marker on the map wherever we click

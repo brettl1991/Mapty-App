@@ -11,6 +11,7 @@ const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
+let map, mapEvent;
 //using geo location
 if (navigator.geolocation)
   navigator.geolocation.getCurrentPosition(
@@ -25,7 +26,7 @@ if (navigator.geolocation)
       const coords = [latitude, longitude];
 
       //Displaying a map using leaflet library
-      const map = L.map('map').setView(coords, 13);
+      map = L.map('map').setView(coords, 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
         //L. is stands for leaflet namespace
@@ -36,30 +37,35 @@ if (navigator.geolocation)
       //Display a marker on the map wherever we click
       //getting  different coords from where we click
       //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
-      map.on('click', function (mapEvent) {
+      map.on('click', function (mapE) {
+        mapEvent = mapE; //we did this because we dont need this mapEvenet right here in this function, so copiing to a global variable so we can have access to it later
         //Rendering workout input form
         form.classList.remove('hidden');
         inputDistance.focus();
-        // console.log(mapEvent);
-        //destructure objects from mapEvent
-        // const { lat, lng } = mapEvent.latlng;
-
-        // L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
-        //   .addTo(map)
-        //   .bindPopup(
-        //     L.popup({
-        //       maxWidth: 250,
-        //       minWidth: 100,
-        //       autoClose: false,
-        //       closeOnClick: false,
-        //       className: 'running-popup',
-        //     })
-        //   )
-        //   .setPopupContent('Workout')
-        //   .openPopup();
       });
     },
     function () {
       alert('Could not get your position');
     }
   );
+
+//When we submitting the form display marker exactly on the coordinates where we clicked before
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+  console.log(mapEvent);
+  //destructure objects from mapEvent
+  const { lat, lng } = mapEvent.latlng;
+  L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
+    .addTo(map)
+    .bindPopup(
+      L.popup({
+        maxWidth: 250,
+        minWidth: 100,
+        autoClose: false,
+        closeOnClick: false,
+        className: 'running-popup',
+      })
+    )
+    .setPopupContent('Workout')
+    .openPopup();
+});

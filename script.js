@@ -17,13 +17,14 @@ if (navigator.geolocation)
     //this func takes 2 callback funcs, 1 is the success callback: once the browser succesfully got the coordiantes of the current position of the user and the 2nd is the error func: when we get an error while getting the coordinates
     function (position) {
       // console.log(position);
-      //Displaying a map using leaflet library
+
       const { latitude } = position.coords;
       const { longitude } = position.coords;
       console.log(`https://www.google.com/maps/${latitude},${longitude}`);
 
       const coords = [latitude, longitude];
 
+      //Displaying a map using leaflet library
       const map = L.map('map').setView(coords, 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -36,8 +37,16 @@ if (navigator.geolocation)
         .addTo(map)
         .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
         .openPopup();
+
+      //getting  different coords from where we click
+      //this coming from leaflet as map above called from L.map(...)
+      map.on('click', function (mapEvent) {
+        console.log(mapEvent);
+      });
     },
     function () {
       alert('Could not get your position');
     }
   );
+
+//Display a marker on the map wherever we click

@@ -33,15 +33,26 @@ if (navigator.geolocation)
           '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       }).addTo(map);
 
-      L.marker(coords)
-        .addTo(map)
-        .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-        .openPopup();
-
       //getting  different coords from where we click
-      //this coming from leaflet as map above called from L.map(...)
+      //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
       map.on('click', function (mapEvent) {
         console.log(mapEvent);
+        //destructure objects from mapEvent
+        const { lat, lng } = mapEvent.latlng;
+
+        L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
+          .addTo(map)
+          .bindPopup(
+            L.popup({
+              maxWidth: 250,
+              minWidth: 100,
+              autoClose: false,
+              closeOnClick: false,
+              className: 'running-popup',
+            })
+          )
+          .setPopupContent('Workout')
+          .openPopup();
       });
     },
     function () {

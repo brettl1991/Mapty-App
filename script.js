@@ -49,9 +49,17 @@ if (navigator.geolocation)
     }
   );
 
-//When we submitting the form display marker exactly on the coordinates where we clicked before
+//When we submitting the form, display marker exactly on the coordinates where we clicked before
 form.addEventListener('submit', function (e) {
   e.preventDefault();
+
+  //Clear input fields
+  inputDistance.value =
+    inputDuration.value =
+    inputCadence.value =
+    inputElevation.value =
+      '';
+
   console.log(mapEvent);
   //destructure objects from mapEvent
   const { lat, lng } = mapEvent.latlng;

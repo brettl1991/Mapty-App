@@ -12,42 +12,62 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 let map, mapEvent;
-//using geo location
-if (navigator.geolocation)
-  navigator.geolocation.getCurrentPosition(
-    //this func takes 2 callback funcs, 1 is the success callback: once the browser succesfully got the coordiantes of the current position of the user and the 2nd is the error func: when we get an error while getting the coordinates
-    function (position) {
-      // console.log(position);
 
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
-      console.log(`https://www.google.com/maps/${latitude},${longitude}`);
+//Implementing classes based on architecture-part-1
+class App {
+  #map;
+  #mapEvent;
+  constructor() {
+    this._getPosition();
+  }
 
-      const coords = [latitude, longitude];
+  _getPosition() {
+    //using geo location
+    if (navigator.geolocation)
+      navigator.geolocation.getCurrentPosition(
+        this._loadMap.bind(this),
+        //this func takes 2 callback funcs, 1 is the success callback: once the browser succesfully got the coordiantes of the current position of the user and the 2nd is the error func: when we get an error while getting the coordinates
 
-      //Displaying a map using leaflet library
-      map = L.map('map').setView(coords, 13);
+        function () {
+          alert('Could not get your position');
+        }
+      );
+  }
+  _loadMap(position) {
+    // console.log(position);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        //L. is stands for leaflet namespace
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      }).addTo(map);
+    const { latitude } = position.coords;
+    const { longitude } = position.coords;
+    console.log(`https://www.google.com/maps/${latitude},${longitude}`);
 
-      //Display a marker on the map wherever we click
-      //getting  different coords from where we click
-      //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
-      map.on('click', function (mapE) {
-        mapEvent = mapE; //we did this because we dont need this mapEvenet right here in this function, so copiing to a global variable so we can have access to it later
-        //Rendering workout input form
-        form.classList.remove('hidden');
-        inputDistance.focus();
-      });
-    },
-    function () {
-      alert('Could not get your position');
-    }
-  );
+    const coords = [latitude, longitude];
+
+    //Displaying a map using leaflet library
+    this.#map = L.map('map').setView(coords, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+      //L. is stands for leaflet namespace
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.#map);
+
+    //Display a marker on the map wherever we click
+    //getting  different coords from where we click
+    //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
+    this.#map.on('click', function (mapE) {
+      this.#mapEvent = mapE; //we did this because we dont need this mapEvenet right here in this function, so copiing to a global variable so we can have access to it later
+      //Rendering workout input form
+      form.classList.remove('hidden');
+      inputDistance.focus();
+    });
+  }
+
+  _showForm() {}
+  _toggleElevationField() {}
+  _newWorkout() {}
+}
+
+const app = new App();
 
 //When we submitting the form, display marker exactly on the coordinates where we clicked before
 form.addEventListener('submit', function (e) {

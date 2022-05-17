@@ -341,6 +341,12 @@ class App {
       this._renderWorkout(work);
     });
   }
+
+  //Delete all the workouts at once from local storage
+  reset() {
+    localStorage.removeItem('workouts');
+    location.reload();
+  } //so with app.reset() in console we are able to delete them from a local storage
 }
 
 const app = new App();

@@ -86,7 +86,12 @@ class App {
   #workouts = [];
 
   constructor() {
+    //Get user position
     this._getPosition();
+
+    //Get data from local storage
+    this._getLocalStorage();
+    //Attach event handlers
 
     //When we submitting the form, display marker exactly on the coordinates where we clicked before
     form.addEventListener('submit', this._newWorkout.bind(this)); //when you working with eventlisteners in a class need to use binding with this all the time
@@ -133,6 +138,10 @@ class App {
     //getting  different coords from where we click
     //this coming from leaflet as map above called from L.map(...), because addEventlistener not working here because of the library
     this.#map.on('click', this._showForm.bind(this));
+
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(mapE) {
@@ -222,6 +231,10 @@ class App {
 
     //Hide form and Clear input fields
     this._hideForm();
+
+    //Set local storage on all workouts
+
+    this._setLocalStorage();
   }
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
@@ -307,7 +320,26 @@ class App {
     });
 
     //using the public interface //count the clicks that happen on each of the workouts
-    workout.click();
+    // workout.click();
+  }
+
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts)); //JSON.stringify using to convert any object to a string, localstorage only advised to use just for small data
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts')); //convert string back to object
+    console.log(data);
+    if (!data) return;
+
+    //restore our workouts array
+    this.#workouts = data;
+
+    //take all workouts and render them on a list
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
   }
 }
 

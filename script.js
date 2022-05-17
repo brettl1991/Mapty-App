@@ -124,13 +124,21 @@ class App {
 
   _newWorkout(e) {
     e.preventDefault();
-    //Clear input fields
-    inputDistance.value =
-      inputDuration.value =
-      inputCadence.value =
-      inputElevation.value =
-        '';
 
+    //Get data from form
+    const type = inputType.value;
+    const distance = +inputCadence.value; //convert to number
+    const duration = inputDuration.value;
+
+    //Check if data is valid
+
+    //If workout is running, create running object
+
+    //If workout is cycling, create cycling object
+
+    //Add new object to the workout array
+
+    //Render workout on map as a marker
     //destructure objects from mapEvent
     const { lat, lng } = this.#mapEvent.latlng;
     L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
@@ -148,5 +156,14 @@ class App {
       .openPopup();
   }
 }
+
+//Render workout on list
+
+//Hide form and Clear input fields
+inputDistance.value =
+  inputDuration.value =
+  inputCadence.value =
+  inputElevation.value =
+    '';
 
 const app = new App();

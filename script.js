@@ -28,6 +28,8 @@ class Workout {
 //child classes
 
 class Running extends Workout {
+  type = 'running';
+
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -41,6 +43,8 @@ class Running extends Workout {
   }
 }
 class Cycling extends Workout {
+  type = 'cycling';
+
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -62,6 +66,8 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
+
   constructor() {
     this._getPosition();
 
@@ -123,25 +129,70 @@ class App {
   }
 
   _newWorkout(e) {
+    //Helper functions(validInputs, allPositive)
+    const validInputs = (...inputs) =>
+      inputs.every(inp => Number.isFinite(inp)); //looping through the array and check if the input is a number or not
+
+    const allPositive = (...inputs) => inputs.every(inp => inp > 0);
+
     e.preventDefault();
 
     //Get data from form
     const type = inputType.value;
-    const distance = +inputCadence.value; //convert to number
-    const duration = inputDuration.value;
-
-    //Check if data is valid
-
-    //If workout is running, create running object
-
-    //If workout is cycling, create cycling object
-
-    //Add new object to the workout array
-
-    //Render workout on map as a marker
+    const distance = +inputDistance.value; //convert to number
+    const duration = +inputDuration.value;
     //destructure objects from mapEvent
     const { lat, lng } = this.#mapEvent.latlng;
-    L.marker([lat, lng]) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
+    let workout;
+
+    //If workout is running, create running object
+    if (type === 'running') {
+      const cadence = +inputCadence.value;
+      //Check if data is valid
+      if (
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+        //or
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence)
+      )
+        return alert('Inputs have to be positive numbers'); //if distance is not a number
+
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+
+    //If workout is cycling, create cycling object
+    if (type === 'cycling') {
+      const elevation = +inputElevation.value;
+      console.log('elevation', elevation);
+      //Check if data is valid
+      if (
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration)
+      )
+        return alert('Inputs have to be positive numbers');
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
+    }
+    //Add new object to the workout array
+    this.#workouts.push(workout);
+    console.log(workout); //Running {date: Tue May 17 2022 13:30:01 GMT+0100 (British Summer Time), id: '2790601559', coords: Array(2), distance: 2, duration: 22, …}
+
+    //Render workout on map as a marker
+    this.renderWorkoutMarker(workout);
+
+    //Render workout on list
+
+    //Hide form and Clear input fields
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        '';
+  }
+  renderWorkoutMarker(workout) {
+    L.marker(workout.coords) //L.marker creates the marker, .addTo add the marker to the map, ..bindPopup will create a popup and binded to the marker
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -149,21 +200,12 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${workout.type}-popup`,
         })
       )
-      .setPopupContent('Workout')
+      .setPopupContent('workout')
       .openPopup();
   }
 }
-
-//Render workout on list
-
-//Hide form and Clear input fields
-inputDistance.value =
-  inputDuration.value =
-  inputCadence.value =
-  inputElevation.value =
-    '';
 
 const app = new App();

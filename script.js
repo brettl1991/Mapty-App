@@ -16,6 +16,7 @@ class Workout {
   date = new Date();
   //unique id to use later
   id = (Date.now() + '').slice(-10); //converting into number
+  clicks = 0;
   constructor(coords, distance, duration) {
     // this.date=...
     // this.id=...
@@ -30,6 +31,11 @@ class Workout {
     this.description = `${this.type[0].toUpperCase()}${this.type.slice(1)} on ${
       months[this.date.getMonth()]
     } ${this.date.getDate()}`;
+  }
+
+  //increase the number of clicks
+  click() {
+    this.clicks++;
   }
 }
 
@@ -75,6 +81,7 @@ class Cycling extends Workout {
 //Implementing classes based on architecture-part-1
 class App {
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
@@ -86,6 +93,9 @@ class App {
 
     //When we change the type should change the lable from Candence to Elev Gain
     inputType.addEventListener('change', this._toggleElevationField);
+
+    //adding eventlistener to parent element - containerworkout - to be able to move to the marker on click
+    containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
   }
 
   _getPosition() {
@@ -111,7 +121,7 @@ class App {
     const coords = [latitude, longitude];
 
     //Displaying a map using leaflet library
-    this.#map = L.map('map').setView(coords, 13);
+    this.#map = L.map('map').setView(coords, this.#mapZoomLevel);
 
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       //L. is stands for leaflet namespace
@@ -275,6 +285,29 @@ class App {
       </li>`;
 
     form.insertAdjacentHTML('afterend', html);
+  }
+
+  //upon click on the list we get the element and the viewport will move to that input as well
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest('.workout');
+    console.log(workoutEl);
+
+    if (!workoutEl) return;
+
+    //get workout data out of the workout array
+    const workout = this.#workouts.find(
+      work => work.id === workoutEl.dataset.id
+    );
+    console.log(workout);
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
+
+    //using the public interface //count the clicks that happen on each of the workouts
+    workout.click();
   }
 }
 
